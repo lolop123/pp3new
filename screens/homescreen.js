@@ -1,12 +1,13 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import React from 'react'
+import { auth } from '../firebase'
 
 
 const HomeScreen = () => {
   const navigation = useNavigation()
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     auth
       .signOut()
       .then(() => {
