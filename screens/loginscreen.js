@@ -2,12 +2,40 @@ import { TouchableOpacity,KeyboardAvoidingView, StyleSheet, Text, TextInput, Vie
 import { useNavigation } from '@react-navigation/core';
 import React, { useEffect, useState } from 'react';
 
-import { auth } from '../firebase'
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
 
 
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
+  authDomain: "parking-5ed0e.firebaseapp.com",
+  projectId: "parking-5ed0e",
+  storageBucket: "parking-5ed0e.appspot.com",
+  messagingSenderId: "142686564658",
+  appId: "1:142686564658:web:5b294c1315ff4e0850272b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth =   getAuth();
+
+
+
+
+// Get a list of cities from your database
+async function getCities() {
+  const citiesCol = collection(db, 'cities');
+  const citySnapshot = await getDocs(citiesCol);
+  const cityList = citySnapshot.docs.map(doc => doc.data());
+  console.log(cityList);
+}
 
 const LoginScreen = () => {
-  const [parkingPlace, setPlace] = useState('')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -20,23 +48,25 @@ const LoginScreen = () => {
         navigation.replace("Home")
       }
     })
-
+  
     return unsubscribe
   }, [])
 
+  
+
   const handleSignUp = async () => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
+    createUserWithEmailAndPassword(auth,email, password)
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Registered with:', user.email);
       })
-      .catch(error => alert(error.message))
+      .catch(error => alert(error.message));
+      navigation.replace("Home")
+
   }
 
   const handleLogin = async () => {
-    auth
-      .signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Logged in with:', user.email);
@@ -70,6 +100,12 @@ const LoginScreen = () => {
           style={styles.button}
         >
           <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={getCities}
+          style={[styles.button, styles.buttonOutline]}
+        >
+          <Text style={styles.buttonOutlineText}>getc</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSignUp}
