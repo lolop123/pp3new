@@ -86,6 +86,12 @@ const LoginScreen = () => {
           style={styles.input}
         />
         <TextInput
+          placeholder="Email"
+           value={email}
+          onChangeText={text => setEmail(text)}
+          style={styles.input}
+        />
+        <TextInput
           placeholder="Password"
            value={password}
           onChangeText={text => setPassword(text)}

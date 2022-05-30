@@ -24,21 +24,48 @@ const auth =   getAuth();
 
 
 
-const HomeScreen = () => {
+
+
+const HomeScreen =  () => {
+  
+  async function getcurrPlace() {
+   const docRef = doc(db, "people", "lol@gmail.com");
+   const docSnap = await getDoc(docRef);
+  
+   // console.log("Document data:", docSnap.data().currentPlace);
+  
+   setpermPlace(docSnap.data().permPlace)
+   
+   console.log('get' + permanentPlace);
+  
+  }
+  async function settPlace() {
+    console.log('set' + currPlace);
  
+    const docData  =  {
+      currentPlace: currPlace,
+      mail: auth.currentUser?.email,
+      permPlace: permanentPlace,
+      date: Timestamp.fromDate(new Date("December 5, 2015")),
+      statusOfPermPla: 'free',
+  };
+  console.log(3);
+  setDoc(doc(db, "people", auth.currentUser?.email), docData);
+  console.log(4);
+  } 
   console.log('-------');
+  
+  
   
   const [parkingPlace, setPlace] = useState('')
   const [currPlace, setcurrPlace] = useState('')
   const [permanentPlace, setpermPlace] = useState('')
-  
+
   const navigation = useNavigation()
-  
-   getcurrPlace().then(()=> settPlace());
- // getpermPlace();
-  //settPlace();
-  
+
+ getcurrPlace()
  
+
   const handleSignOut = async () => {
     auth
       .signOut()
@@ -51,44 +78,21 @@ const HomeScreen = () => {
     const citiesCol = collection(db, 'places');
     const citySnapshot = await getDocs(citiesCol);
     const cityList = citySnapshot.docs.map(doc => doc.data());
-    
-    //console.log(cityList);
 
-  }
-   async function getcurrPlace() {
-    const docRef = doc(db, "people", "lol@gmail.com");
-    const docSnap = await getDoc(docRef);
-    
-    // console.log("Document data:", docSnap.data().currentPlace);
-    console.log(1);
-    setcurrPlace(docSnap.data().currentPlace)
-    console.log(2);
-    console.log('get' + currPlace);
+    //console.log(cityList);
 
   }
   async function getpermPlace() {
     const docRef = doc(db, "people", "lol@gmail.com");
     const docSnap = await getDoc(docRef);
-    
+
      //console.log("Document data:", docSnap.data().permPlace);
     setpermPlace(docSnap.data().permPlace)
   }
 
-  async function settPlace() {
-    console.log('set' + currPlace);
-    
-    const docData  =  {
-      currentPlace: currPlace,
-      mail: auth.currentUser?.email,
-      permPlace: permanentPlace,
-      date: Timestamp.fromDate(new Date("December 5, 1315")),   
-  };
-  console.log(3);
-  await setDoc(doc(db, "people", "lol@gmail.com"), docData);
-  console.log(4);
-}
-
   
+
+
   return (
     <View style={styles.container}>
       <Text>Email: {auth.currentUser?.email}</Text>
@@ -113,13 +117,13 @@ const HomeScreen = () => {
         <Text style={styles.buttonText}>My place</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={getcurrPlace}
+        onPress={settPlace}
         style={styles.button}
       >
-        <Text style={styles.buttonText}>chek my place</Text>
+        <Text style={styles.buttonText}>sett</Text>
       </TouchableOpacity>
     </View>
-    
+
   )
 }
 
