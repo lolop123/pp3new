@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   View,
+  AsyncStorage,
 } from "react-native";
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
