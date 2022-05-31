@@ -1,15 +1,19 @@
-import { TouchableOpacity,KeyboardAvoidingView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useNavigation } from '@react-navigation/core';
-import React, { useEffect, useState } from 'react';
+import {
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useNavigation } from "@react-navigation/core";
+import React, { useEffect, useState } from "react";
 
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
-
-
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -17,90 +21,75 @@ const firebaseConfig = {
   projectId: "parking-5ed0e",
   storageBucket: "parking-5ed0e.appspot.com",
   messagingSenderId: "142686564658",
-  appId: "1:142686564658:web:5b294c1315ff4e0850272b"
+  appId: "1:142686564658:web:5b294c1315ff4e0850272b",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth =   getAuth();
-
-
-
+const auth = getAuth();
 
 // Get a list of cities from your database
 async function getCities() {
-  const citiesCol = collection(db, 'cities');
+  const citiesCol = collection(db, "cities");
   const citySnapshot = await getDocs(citiesCol);
-  const cityList = citySnapshot.docs.map(doc => doc.data());
+  const cityList = citySnapshot.docs.map((doc) => doc.data());
   console.log(cityList);
 }
 
 const LoginScreen = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.replace("Home")
+        navigation.replace("Home");
       }
-    })
-  
-    return unsubscribe
-  }, [])
+    });
 
-  
+    return unsubscribe;
+  }, []);
 
   const handleSignUp = async () => {
-    createUserWithEmailAndPassword(auth,email, password)
-      .then(userCredentials => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredentials) => {
         const user = userCredentials.user;
-        console.log('Registered with:', user.email);
+        console.log("Registered with:", user.email);
       })
-      .catch(error => alert(error.message));
-      navigation.replace("Home")
-
-  }
+      .catch((error) => alert(error.message));
+    navigation.replace("Home");
+  };
 
   const handleLogin = async () => {
     signInWithEmailAndPassword(auth, email, password)
-      .then(userCredentials => {
+      .then((userCredentials) => {
         const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
+        console.log("Logged in with:", user.email);
       })
-      .catch(error => alert(error.message))
-  }
+      .catch((error) => alert(error.message));
+  };
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding"
-    >
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
-       
         <TextInput
           placeholder="Email"
-           value={email}
-          onChangeText={text => setEmail(text)}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
           style={styles.input}
         />
         <TextInput
           placeholder="Password"
-           value={password}
-          onChangeText={text => setPassword(text)}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
           style={styles.input}
           secureTextEntry
         />
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={handleLogin}
-          style={styles.button}
-        >
+        <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -117,54 +106,54 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
-  )
-}
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   inputContainer: {
-    width: '80%'
+    width: "80%",
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 10,
     marginTop: 5,
   },
   buttonContainer: {
-    width: '60%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "60%",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 40,
   },
   button: {
-    backgroundColor: '#0782F9',
-    width: '100%',
+    backgroundColor: "#0782F9",
+    width: "100%",
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonOutline: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     marginTop: 5,
-    borderColor: '#0782F9',
+    borderColor: "#0782F9",
     borderWidth: 2,
   },
   buttonText: {
-    color: 'white',
-    fontWeight: '700',
+    color: "white",
+    fontWeight: "700",
     fontSize: 16,
   },
   buttonOutlineText: {
-    color: '#0782F9',
-    fontWeight: '700',
+    color: "#0782F9",
+    fontWeight: "700",
     fontSize: 16,
   },
-})
+});
