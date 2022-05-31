@@ -20,8 +20,6 @@ import {
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-
-
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
   authDomain: "parking-5ed0e.firebaseapp.com",
@@ -30,10 +28,11 @@ const firebaseConfig = {
   messagingSenderId: "142686564658",
   appId: "1:142686564658:web:5b294c1315ff4e0850272b",
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
+
+
 
 const HomeScreen = () => {
 
@@ -41,13 +40,12 @@ const HomeScreen = () => {
     const docRef = doc(db, "people", "lol@gmail.com");
     const docSnap = await getDoc(docRef);
 
-    // console.log("Document data:", docSnap.data().currentPlace);
     if (docSnap.data().permPlace == 'Please enter your permanent place') {
       setpermPlace('Please enter your permanent place')
     } else {
       setpermPlace(docSnap.data().permPlace)
     }
-    //setpermPlace(docSnap.data().permPlace);
+   
     setplaceStatus(docSnap.data().statusOfPermPla);
     console.log("get" + permanentPlace);
     if (permanentPlace == 'Please enter your permanent place') {
@@ -70,8 +68,6 @@ const HomeScreen = () => {
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     setpermPlace(parkingPlace);
     
-     
-
   }
   console.log("-------");
 
@@ -229,9 +225,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
-  input1:{
-    color: "green",
-    fontWeight: "100",
-    fontSize: 100,
-  },
+  
 });
