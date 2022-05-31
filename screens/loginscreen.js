@@ -10,6 +10,7 @@ import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
 
 
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
   authDomain: "parking-5ed0e.firebaseapp.com",
@@ -79,12 +80,7 @@ const LoginScreen = () => {
       behavior="padding"
     >
       <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email"
-           value={email}
-          onChangeText={text => setEmail(text)}
-          style={styles.input}
-        />
+       
         <TextInput
           placeholder="Email"
            value={email}
