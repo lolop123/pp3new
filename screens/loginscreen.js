@@ -5,13 +5,21 @@ import {
   Text,
   TextInput,
   View,
-  AsyncStorage,
 } from "react-native";
+import SwitchSelector from "react-native-switch-selector";
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
 
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  getDoc,
+  Timestamp,
+} from "firebase/firestore";
 
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
@@ -29,22 +37,26 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
 
-
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [switcherStatus, setswitcherStatus] = useState(0);
 
   const navigation = useNavigation();
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
+      if (user && (switcherStatus == 1)) {
         navigation.replace("Home");
+      } else if(user && (switcherStatus == 0)){
+        navigation.replace("Search");
       }
     });
 
     return unsubscribe;
-  }, []);
+  });
 
   const handleSignUp = async () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -57,16 +69,45 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    signInWithEmailAndPassword(auth, email, password)
+    await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Logged in with:", user.email);
       })
       .catch((error) => alert(error.message));
+    sendSearchStatus();
   };
+
+  async function sendSearchStatus() {
+    console.log("get start");
+    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+    const docData = {
+      currentPlace: docSnap.data().currentPlace,
+      mail: auth.currentUser?.email,
+      permPlace: docSnap.data().permPlace,
+      date: docSnap.data().date,
+      dateMax: docSnap.data().dateMax,
+      statusOfPermPla: docSnap.data().statusOfPermPla,
+      searchStatus: switcherStatus,
+    };
+
+    setDoc(doc(db, "people", auth.currentUser?.email), docData);
+    console.log("sended" + switcherStatus);
+    console.log("login end");
+  }
+
+  const optionsOFSwitcher = [
+    { label: "I have place", value: 0 },
+    { label: "Ill search place", value: 1 },
+  ];
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
+        <SwitchSelector
+          options={optionsOFSwitcher}
+          initial={0}
+          onPress={(value) => setswitcherStatus(value)}
+        />
         <TextInput
           placeholder="Email"
           value={email}
