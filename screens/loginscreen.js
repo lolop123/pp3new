@@ -48,9 +48,9 @@ const LoginScreen = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && (switcherStatus == 1)) {
+      if (user && (switcherStatus == 0)) {
         navigation.replace("Home");
-      } else if(user && (switcherStatus == 0)){
+      } else if(user && (switcherStatus == 1)){
         navigation.replace("Search");
       }
     });

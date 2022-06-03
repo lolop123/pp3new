@@ -35,15 +35,18 @@ const auth = getAuth();
 
 
 const HomeScreen = () => {
-
+try {
   useEffect(() => {
     const  getcurrPlace = async () => {
-      const docRef = doc(db, "people", "lol@gmail.com");
+     
+         const docRef = await doc(db, "people", auth.currentUser?.email);
       const docSnap = await getDoc(docRef);
-
-      let numberMinusDays = docSnap.data().date.toDate() - Date.now();
+      console.log('-------')
+      const timeElapsed = Date.now();
+      const today = new Date(timeElapsed);
+      let numberMinusDays = docSnap.data().date.toDate().setHours(0,0,0,0) - today.setHours(0,0,0,0);
       console.log(( numberMinusDays) / (1000 * 60 * 60 * 24))
-    if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 1 ){
+    if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 0 ){
       console.log('Using')
       setplaceStatus('Using');
     }
@@ -53,6 +56,8 @@ const HomeScreen = () => {
     else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < -50){
       setplaceStatus('Not active user')
     }
+     
+     
 
       
       if (docSnap.data().permPlace == 'Please enter your permanent place') {
@@ -75,6 +80,10 @@ const HomeScreen = () => {
   }
   getcurrPlace()
   }, []);
+} catch (error) {
+  console.log(error)
+}
+  
 
 
     
@@ -95,7 +104,7 @@ const HomeScreen = () => {
     
     
   }
-  console.log("-------");
+
 
   const [parkingPlace, setPlace] = useState("");
   const [currPlace, setcurrPlace] = useState("");
@@ -135,13 +144,14 @@ const HomeScreen = () => {
       date: date ,
       dateMax : docSnap.data().dateMax,
       statusOfPermPla: placeStatus,
+      searchStatus: docSnap.data().searchStatus
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
    }
    catch (e) {
-      // инструкции для обработки ошибок
-      logMyErrors(e); // передать объект исключения обработчику ошибок
+     
+      logMyErrors(e); 
    }
     hideDatePicker();
     setShareDateStart(date.toLocaleDateString('en-us'))
@@ -162,6 +172,7 @@ const HomeScreen = () => {
       date: docSnap.data().date,
       dateMax: date,
       statusOfPermPla: "free",
+      searchStatus: docSnap.data().searchStatus,
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
@@ -185,7 +196,23 @@ const HomeScreen = () => {
     const citiesCol = collection(db, "places");
     const citySnapshot = await getDocs(citiesCol);
     const cityList = citySnapshot.docs.map((doc) => doc.data());
-
+    console.log(cityList)
+    const docRef = doc(db, "people", auth.currentUser?.email);
+    const docSnap = await getDoc(docRef);
+    console.log('-------')
+    let numberMinusDays = docSnap.data().date.toDate() - Date.now();
+    console.log(( numberMinusDays) / (1000 * 60 * 60 * 24))
+  if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 1 ){
+    console.log('Using')
+    setplaceStatus('Using');
+  }
+  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < 1 && ( numberMinusDays) / (1000 * 60 * 60 * 24) > -50 ){
+    setplaceStatus('Free') ; console.log('free')
+  }
+  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < -50){
+    setplaceStatus('Not active user')
+  }
+    
    
   }
   async function getpermPlace() {
@@ -195,6 +222,33 @@ const HomeScreen = () => {
     //console.log("Document data:", docSnap.data().permPlace);
     setpermPlace(docSnap.data().permPlace);
   }
+
+  async function dontShareF() {
+    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+    var theBigDay = new Date(2000, 1, 2);
+    console.log(theBigDay);
+    const docData = {
+      currentPlace: docSnap.data().currentPlace,
+      mail: auth.currentUser?.email,
+      permPlace: docSnap.data().permPlace,
+      date: theBigDay,
+      dateMax: theBigDay,
+      statusOfPermPla: docSnap.data().statusOfPermPla,
+      searchStatus: docSnap.data().searchStatus,
+    };
+    try {
+      setDoc(doc(db, "people", auth.currentUser?.email), docData);
+   }
+   catch (e) {
+      
+      logMyErrors(e); 
+   }
+  }
+  // if (docSnap.data().date.toDate().setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
+  //   console.log('это сегодня')
+  // } else {
+  //   console.log('не сегодня')
+  // }
 
   return (
     
@@ -237,6 +291,9 @@ const HomeScreen = () => {
       <TouchableOpacity  onPress={settPlace} style={styles.button}>
         <Text style={styles.buttonText}>sett</Text>
       </TouchableOpacity>  ) : null}
+      <TouchableOpacity onPress={dontShareF} style={styles.button}>
+        <Text style={styles.buttonText}>Dont share</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>

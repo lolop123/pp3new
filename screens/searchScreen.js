@@ -19,6 +19,7 @@ import {
   } from "firebase/firestore";
   import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
   import DateTimePickerModal from "react-native-modal-datetime-picker";
+  import SwitchSelector from "react-native-switch-selector";
   
   const firebaseConfig = {
     apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -37,6 +38,7 @@ import {
   const Searchscreen = () => {
 
     const navigation = useNavigation();
+    const [switcherStatus, setswitcherStatus] = useState(1);
 
     const handleSignOut = async () => {
         auth
@@ -48,11 +50,40 @@ import {
       };
 
 
-    
+      const optionsOFSwitcher = [
+        { label: "Just not for long", value: 0 },
+        { label: "long-term", value: 1 },
+      ];
+      async function searchFreePlace() {
+        console.log("get start");
+        const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+        const placesPool = collection(db, "people");
+        const placesSnapshot = await getDocs(placesPool);
+        const placesList = placesSnapshot.docs.map((doc) => doc.data());
+        console.log(placesList.filter(car => car.searchStatus  === 2))
+
+      }
+
   return (
     
     <View style={styles.container}>
       <Text>hello</Text>
+      <SwitchSelector
+          options={optionsOFSwitcher}
+          initial={0}
+          onPress={(value) => setswitcherStatus(value)}
+        />
+      <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
+        <Text style={styles.buttonText}>Search free place</Text>
+      </TouchableOpacity>
+      <SwitchSelector
+          options={optionsOFSwitcher}
+          initial={0}
+          onPress={(value) => setswitcherStatus(value)}
+        />
+      <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
+        <Text style={styles.buttonText}>Search free place</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
