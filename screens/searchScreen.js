@@ -36,7 +36,7 @@ import {
   
   
   const Searchscreen = () => {
-
+    var theBigDay = new Date(2000, 1, 2);
     const navigation = useNavigation();
     const [switcherStatus, setswitcherStatus] = useState(1);
 
@@ -60,8 +60,9 @@ import {
         const placesPool = collection(db, "people");
         const placesSnapshot = await getDocs(placesPool);
         const placesList = placesSnapshot.docs.map((doc) => doc.data());
-        console.log(placesList.filter(car => car.searchStatus  === 2))
-
+        
+        var fruits = placesList.filter(human => human.date.toDate().toLocaleDateString('en-us')  != theBigDay.toLocaleDateString('en-us'))
+        console.log(fruits[0])
       }
 
   return (
@@ -76,14 +77,7 @@ import {
       <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
         <Text style={styles.buttonText}>Search free place</Text>
       </TouchableOpacity>
-      <SwitchSelector
-          options={optionsOFSwitcher}
-          initial={0}
-          onPress={(value) => setswitcherStatus(value)}
-        />
-      <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
-        <Text style={styles.buttonText}>Search free place</Text>
-      </TouchableOpacity>
+     
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
