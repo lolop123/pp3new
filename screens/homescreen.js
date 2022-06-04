@@ -60,7 +60,7 @@ const HomeScreen = () => {
     }
      
       
-     if (docSnap.data().permPlace == 0) {
+     if (docSnap.data().permPlace == 'Please enter your permanent place') {
         setpermPlace('Please enter your permanent place')
       } else {
         setpermPlace(docSnap.data().permPlace)
@@ -76,7 +76,7 @@ const HomeScreen = () => {
     
   
     console.log("get" + permanentPlace);
-    if (docSnap.data().permPlace == 0) {
+    if (permanentPlace == 'Please enter your permanent place') {
       setPermPlaceVisible(true)
     } else {
       setPermPlaceVisible(false)
@@ -103,13 +103,11 @@ const HomeScreen = () => {
       permPlace: parkingPlace,
       date: docSnap.data().date,
       dateMax : docSnap.data().dateMax,
-      statusOfPermPla: "Added",
-      searchStatus: docSnap.data().searchStatus
+      statusOfPermPla: "free",
     };
     
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     setpermPlace(parkingPlace);
-    setReload(oldKey => oldKey +1);
    
     
     
@@ -127,10 +125,6 @@ const HomeScreen = () => {
   const [shareDateStart, setShareDateStart] = useState("");
   const [shareDateEnd, setshareDateEnd] = useState("");
   
-  const showPlaceSetButton = () => {
-    setPermPlaceVisible(true);
-  };
-
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
@@ -153,7 +147,7 @@ const HomeScreen = () => {
     const docData = {
       currentPlace: currPlace,
       mail: auth.currentUser?.email,
-      permPlace: docSnap.data().permPlace,
+      permPlace: permanentPlace,
       date: date ,
       dateMax : docSnap.data().dateMax,
       statusOfPermPla: placeStatus,
@@ -183,7 +177,7 @@ const HomeScreen = () => {
     const docData = {
       currentPlace: currPlace,
       mail: auth.currentUser?.email,
-      permPlace: docSnap.data().permPlace,
+      permPlace: permanentPlace,
       date: docSnap.data().date,
       dateMax: date,
       statusOfPermPla: "free",
@@ -209,7 +203,29 @@ const HomeScreen = () => {
       })
       .catch((error) => alert(error.message));
   };
-  
+  async function getPlace() {
+    const citiesCol = collection(db, "places");
+    const citySnapshot = await getDocs(citiesCol);
+    const cityList = citySnapshot.docs.map((doc) => doc.data());
+    console.log(cityList)
+    const docRef = doc(db, "people", auth.currentUser?.email);
+    const docSnap = await getDoc(docRef);
+    console.log('-------')
+    let numberMinusDays = docSnap.data().date.toDate() - Date.now();
+    console.log(( numberMinusDays) / (1000 * 60 * 60 * 24))
+  if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 1 ){
+    console.log('Using')
+    setplaceStatus('Using');
+  }
+  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < 1 && ( numberMinusDays) / (1000 * 60 * 60 * 24) > -50 ){
+    setplaceStatus('Free') ; console.log('free')
+  }
+  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < -50){
+    setplaceStatus('Not active user')
+  }
+    
+   
+  }
   async function getpermPlace() {
     const docRef = doc(db, "people", "lol@gmail.com");
     const docSnap = await getDoc(docRef);
@@ -239,31 +255,21 @@ const HomeScreen = () => {
    }
    setReload(oldKey => oldKey +1);
   }
-  
 
 
   return (
     
     <View style={styles.container}>
       <Text>Email: {auth.currentUser?.email}</Text>
-     
-      <Text>Your place:</Text>
-      <View style={styles.double}>
-        <TextInput
-          placeholder={permanentPlace}
-          value={parkingPlace}
-          onChangeText={(text) => setPlace(text)}
-          keyboardType = 'numeric'
-
-        />
-        <TouchableOpacity onPress={showPlaceSetButton} style={styles.buttonEddit}>
-          <Text style={styles.buttonText}>ed</Text>
-        </TouchableOpacity>
-      </View>
-      {isPermPlaceVisible ? (
-      <TouchableOpacity  onPress={settPlace} style={styles.button}>
-        <Text style={styles.buttonText}>sett</Text>
-      </TouchableOpacity>  ) : null}
+      <Text>Your current place: {currPlace}</Text>
+      {/* <Text>Your current place: {currPlace}</Text> */}
+      <Text> {permanentPlace}</Text>
+      <TextInput
+        placeholder={permanentPlace}
+        value={parkingPlace}
+        onChangeText={(text) => setPlace(text)}
+        
+      />
       <Text>Your place status: {placeStatus}</Text>
       {isSharePlaceVisible ? (
       <Text>You will share place from: {shareDateStart} to {shareDateEnd} </Text> 
@@ -286,8 +292,13 @@ const HomeScreen = () => {
         onConfirm={handleConfirmMax}
         onCancel={hideDatePickerMax}
       />
-      
-      
+      <TouchableOpacity onPress={getPlace} style={styles.button}>
+        <Text style={styles.buttonText}>My place</Text>
+      </TouchableOpacity>
+      {isPermPlaceVisible ? (
+      <TouchableOpacity  onPress={settPlace} style={styles.button}>
+        <Text style={styles.buttonText}>sett</Text>
+      </TouchableOpacity>  ) : null}
       <TouchableOpacity onPress={dontShareF} style={styles.button}>
         <Text style={styles.buttonText}>Dont share</Text>
       </TouchableOpacity>
@@ -324,12 +335,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
-  double: {
-    position: 'relative',
-    
-  },
-  buttonEddit:{
-    display: "flex",
-    backgroundColor: "#0782F9"
-  },
+  
 });
