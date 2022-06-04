@@ -38,6 +38,7 @@ const db = getFirestore(app);
 const auth = getAuth();
 
 const LoginScreen = () => {
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [switcherStatus, setswitcherStatus] = useState(0);
@@ -48,17 +49,24 @@ const LoginScreen = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && (switcherStatus == 0)) {
-        navigation.replace("Home");
-      } else if(user && (switcherStatus == 1)){
-        navigation.replace("Search");
+      const  getcurrPlace = async () => {
+        const docRef =  await doc(db, "people", auth.currentUser?.email);
+        const docSnap =  await getDoc(docRef);
+
+        if (user && (docSnap.data().searchStatus == 0)) {
+          navigation.replace("Home");
+        } else if(user && (docSnap.data().searchStatus == 1)){
+          navigation.replace("Search");
+        }
       }
-    });
+      getcurrPlace();
+      });
 
     return unsubscribe;
   });
 
   const handleSignUp = async () => {
+    
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
@@ -69,30 +77,33 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
+    await sendSearchStatus();
+    
     await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Logged in with:", user.email);
       })
       .catch((error) => alert(error.message));
-    sendSearchStatus();
   };
 
   async function sendSearchStatus() {
-    console.log("get start");
-    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+    
+    const docSnap = await getDoc(doc(db, "people", email));
+    
     const docData = {
       currentPlace: docSnap.data().currentPlace,
-      mail: auth.currentUser?.email,
+      mail: email,
       permPlace: docSnap.data().permPlace,
       date: docSnap.data().date,
       dateMax: docSnap.data().dateMax,
       statusOfPermPla: docSnap.data().statusOfPermPla,
       searchStatus: switcherStatus,
     };
+  
 
-    setDoc(doc(db, "people", auth.currentUser?.email), docData);
-    console.log("sended" + switcherStatus);
+    await setDoc(doc(db, "people", email), docData);
+    
     console.log("login end");
   }
 
