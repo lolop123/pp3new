@@ -249,16 +249,16 @@ const HomeScreen = () => {
      
       <Text>Your place:</Text>
       <View style={styles.double}>
-      <TextInput
-        placeholder={permanentPlace}
-        value={parkingPlace}
-        onChangeText={(text) => setPlace(text)}
-        keyboardType = 'numeric'
+        <TextInput
+          placeholder={permanentPlace}
+          value={parkingPlace}
+          onChangeText={(text) => setPlace(text)}
+          keyboardType = 'numeric'
 
-      />
-      <TouchableOpacity onPress={showPlaceSetButton} style={styles.buttonEddit}>
-        <Text style={styles.buttonText}>ed</Text>
-      </TouchableOpacity>
+        />
+        <TouchableOpacity onPress={showPlaceSetButton} style={styles.buttonEddit}>
+          <Text style={styles.buttonText}>ed</Text>
+        </TouchableOpacity>
       </View>
       {isPermPlaceVisible ? (
       <TouchableOpacity  onPress={settPlace} style={styles.button}>

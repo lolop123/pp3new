@@ -4,6 +4,7 @@ import {
     Text,
     TextInput,
     View,
+    FlatList
   } from "react-native";
   import { useNavigation } from "@react-navigation/core";
   import React, { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ import {
   import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
   import DateTimePickerModal from "react-native-modal-datetime-picker";
   import SwitchSelector from "react-native-switch-selector";
+  
   
   const firebaseConfig = {
     apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -39,7 +41,7 @@ import {
     var theBigDay = new Date(2000, 1, 2);
     const navigation = useNavigation();
     const [switcherStatus, setswitcherStatus] = useState(1);
-
+    const [textInputValue, setTextInputValue] = useState(1);
     const handleSignOut = async () => {
         auth
           .signOut()
@@ -62,8 +64,18 @@ import {
         const placesList = placesSnapshot.docs.map((doc) => doc.data());
         
         var fruits = placesList.filter(human => human.date.toDate().toLocaleDateString('en-us')  != theBigDay.toLocaleDateString('en-us'))
-        console.log(fruits[0])
+        console.log(fruits)
       }
+    //   let index = 0;
+    //   const data = [
+    //     { key: index++, section: true, label: 'Fruits' },
+    //     { key: index++, label: 'Red Apples' },
+    //     { key: index++, label: 'Cherries' },
+    //     { key: index++, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
+    //     // etc...
+    //     // Can also add additional custom keys which are passed to the onChange callback
+    //     { key: index++, label: 'Vegetable', customKey: 'Not a fruit' }
+    // ];
 
   return (
     
@@ -81,6 +93,23 @@ import {
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
+      {/* <ModalSelector
+                    data={data}
+                    initValue="Select something yummy!"
+                    supportedOrientations={['landscape']}
+                    accessible={true}
+                    scrollViewAccessibilityLabel={'Scrollable options'}
+                    cancelButtonAccessibilityLabel={'Cancel Button'}
+                    onChange={(option)=>{ setTextInputValue(option.label)}}>
+
+                    <TextInput
+                        style={{borderWidth:1, borderColor:'#ccc', padding:10, height:30}}
+                        editable={false}
+                        placeholder="Select something yummy!"
+                        value={textInputValue.toString()} />
+
+                </ModalSelector> */}
+     
       
     </View>
   );
