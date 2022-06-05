@@ -1,0 +1,1 @@
+export const [switcherStatus, setswitcherStatus] = useState(0);

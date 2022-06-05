@@ -257,7 +257,7 @@ const HomeScreen = () => {
 
         />
         <TouchableOpacity onPress={showPlaceSetButton} style={styles.buttonEddit}>
-          <Text style={styles.buttonText}>ed</Text>
+          <Text style={styles.buttonText}>edit</Text>
         </TouchableOpacity>
       </View>
       {isPermPlaceVisible ? (
@@ -325,7 +325,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   double: {
-    position: 'relative',
+    display: 'flex',
+    flexDirection:'row'
     
   },
   buttonEddit:{
