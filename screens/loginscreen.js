@@ -20,9 +20,11 @@ import {
   getDoc,
   Timestamp,
 } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -33,12 +35,37 @@ const firebaseConfig = {
   appId: "1:142686564658:web:5b294c1315ff4e0850272b",
 };
 
+const _storeData = async (value) => {
+  try {
+    await AsyncStorage.setItem(
+      'switcherStatusStorage',
+      value
+    );
+    console.log(value)
+  } catch (error) {
+    // Error saving data
+  }
+};
+async function retrieveData () {
+  console.log('попали в');
+  try {
+    const value = await AsyncStorage.getItem('switcherStatusStorage');
+    if (value !== null) {
+      console.log('лежит' + value);
+      return(value)
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
 
+
 const LoginScreen = () => {
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [switcherStatus, setswitcherStatus] = useState(0);
@@ -48,25 +75,25 @@ const LoginScreen = () => {
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      const  getcurrPlace = async () => {
-        const docRef =  await doc(db, "people", auth.currentUser?.email);
-        const docSnap =  await getDoc(docRef);
-
-        if (user && (docSnap.data().searchStatus == 0)) {
+    const unsubscribe = auth.onAuthStateChanged((user) => 
+    {
+      retrieveData().then(data =>{
+        console.log('effect' + data)
+        if (user && (data === 'a')) {
           navigation.replace("Home");
-        } else if(user && (docSnap.data().searchStatus == 1)){
+        } else if(user && (data === 'b')){
           navigation.replace("Search");
         }
-      }
-      getcurrPlace();
+      });
+      })
+      
+      
+          
+    
+        return unsubscribe;
       });
 
-    return unsubscribe;
-  });
-
   const handleSignUp = async () => {
-    
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
@@ -77,47 +104,47 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    await sendSearchStatus();
-    
     await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Logged in with:", user.email);
       })
       .catch((error) => alert(error.message));
+      console.log('logged in')
+    // sendSearchStatus();
   };
 
-  async function sendSearchStatus() {
-    
-    const docSnap = await getDoc(doc(db, "people", email));
-    
-    const docData = {
-      currentPlace: docSnap.data().currentPlace,
-      mail: email,
-      permPlace: docSnap.data().permPlace,
-      date: docSnap.data().date,
-      dateMax: docSnap.data().dateMax,
-      statusOfPermPla: docSnap.data().statusOfPermPla,
-      searchStatus: switcherStatus,
-    };
-  
+  // async function sendSearchStatus() {
+  //   console.log("get start");
+  //   const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+  //   const docData = {
+  //     currentPlace: docSnap.data().currentPlace,
+  //     mail: auth.currentUser?.email,
+  //     permPlace: docSnap.data().permPlace,
+  //     date: docSnap.data().date,
+  //     dateMax: docSnap.data().dateMax,
+  //     statusOfPermPla: docSnap.data().statusOfPermPla,
+  //     searchStatus: switcherStatus,
+  //   };
 
-    await setDoc(doc(db, "people", email), docData);
-    
-    console.log("login end");
-  }
+  //   setDoc(doc(db, "people", auth.currentUser?.email), docData);
+  //   console.log("sended" + switcherStatus);
+  //   console.log("login end");
+  // }
 
   const optionsOFSwitcher = [
-    { label: "I have place", value: 0 },
-    { label: "Ill search place", value: 1 },
+    { label: "I have place", value: 'a' },
+    { label: "Ill search place", value: 'b' },
   ];
+  
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
         <SwitchSelector
           options={optionsOFSwitcher}
           initial={0}
-          onPress={(value) => setswitcherStatus(value)}
+          onPress={(value) => _storeData(value)}
+          
         />
         <TextInput
           placeholder="Email"
@@ -137,6 +164,9 @@ const LoginScreen = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={retrieveData} style={styles.button}>
+          <Text style={styles.buttonText}>Try</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSignUp}

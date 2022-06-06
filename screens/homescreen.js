@@ -19,6 +19,7 @@ import {
 } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -104,6 +105,9 @@ const HomeScreen = () => {
       date: docSnap.data().date,
       dateMax : docSnap.data().dateMax,
       statusOfPermPla: "free",
+      takingEnd: docSnap.data().takingEnd,
+      takingStart:docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail
     };
     
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -151,7 +155,10 @@ const HomeScreen = () => {
       date: date ,
       dateMax : docSnap.data().dateMax,
       statusOfPermPla: placeStatus,
-      searchStatus: docSnap.data().searchStatus
+      searchStatus: docSnap.data().searchStatus,
+      takingEnd: docSnap.data().takingEnd,
+      takingStart:docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -182,6 +189,9 @@ const HomeScreen = () => {
       dateMax: date,
       statusOfPermPla: "free",
       searchStatus: docSnap.data().searchStatus,
+      takingEnd: docSnap.data().takingEnd,
+      takingStart:docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
@@ -202,27 +212,27 @@ const HomeScreen = () => {
         navigation.replace("Login");
       })
       .catch((error) => alert(error.message));
+      await AsyncStorage.setItem(
+        'switcherStatusStorage',
+        'a'
+      );
   };
   async function getPlace() {
-    const citiesCol = collection(db, "places");
-    const citySnapshot = await getDocs(citiesCol);
-    const cityList = citySnapshot.docs.map((doc) => doc.data());
-    console.log(cityList)
-    const docRef = doc(db, "people", auth.currentUser?.email);
-    const docSnap = await getDoc(docRef);
-    console.log('-------')
-    let numberMinusDays = docSnap.data().date.toDate() - Date.now();
-    console.log(( numberMinusDays) / (1000 * 60 * 60 * 24))
-  if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 1 ){
-    console.log('Using')
-    setplaceStatus('Using');
-  }
-  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < 1 && ( numberMinusDays) / (1000 * 60 * 60 * 24) > -50 ){
-    setplaceStatus('Free') ; console.log('free')
-  }
-  else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < -50){
-    setplaceStatus('Not active user')
-  }
+    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+
+    const docData = {
+      currentPlace: docSnap.data().currentPlace,
+      mail: auth.currentUser?.email,
+      permPlace: docSnap.data().permPlace,
+      date: docSnap.data().date,
+      dateMax: docSnap.data().dateMax ,
+      statusOfPermPla: docSnap.data().statusOfPermPla,
+      searchStatus: docSnap.data().searchStatus,
+      takingEnd: theBigDay,
+      takingStart: theBigDay,
+      takerMail: docSnap.data().takerMail
+    };
+    setDoc(doc(db, "people", auth.currentUser?.email), docData);
     
    
   }
@@ -245,6 +255,9 @@ const HomeScreen = () => {
       dateMax: theBigDay,
       statusOfPermPla: docSnap.data().statusOfPermPla,
       searchStatus: docSnap.data().searchStatus,
+      takingEnd: docSnap.data().takingEnd,
+      takingStart:docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
