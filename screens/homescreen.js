@@ -38,8 +38,10 @@ const auth = getAuth();
 const HomeScreen = () => {
   var theBigDay = new Date(2000, 1, 2);
   const [reload, setReload] = useState(0);
+  const [isPermPlaceVisible, setPermPlaceVisible] = useState(false);
   
   useEffect(() => {
+
     const  getcurrPlace = async () => {
      
          const docRef = await doc(db, "people", auth.currentUser?.email);
@@ -124,7 +126,7 @@ const HomeScreen = () => {
   const [placeStatus, setplaceStatus] = useState("Using");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isDatePickerVisibleMax, setDatePickerVisibilityMax] = useState(false);
-  const [isPermPlaceVisible, setPermPlaceVisible] = useState(false);
+  
   const [isSharePlaceVisible, setSharePlaceVisible] = useState(false);
   const [shareDateStart, setShareDateStart] = useState("");
   const [shareDateEnd, setshareDateEnd] = useState("");

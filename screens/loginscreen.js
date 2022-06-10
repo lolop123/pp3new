@@ -66,6 +66,7 @@ const auth = getAuth();
 
 
 const LoginScreen = () => {
+  var theBigDay = new Date(2000, 1, 2);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [switcherStatus, setswitcherStatus] = useState(0);
@@ -98,9 +99,27 @@ const LoginScreen = () => {
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log("Registered with:", user.email);
+        const docData = {
+          currentPlace: 0,
+          mail: user.email,
+          permPlace: 'Please enter your permanent place',
+          date: theBigDay,
+          dateMax : theBigDay,
+          statusOfPermPla: "free",
+          searchStatus: 'a',
+          takingEnd: theBigDay,
+          takingStart:theBigDay,
+          takerMail: 'admin'
+        };
+        console.log('check register1')
+       setDoc(doc(db, "people", user.email), docData);
+        console.log('check register2')
       })
       .catch((error) => alert(error.message));
-    navigation.replace("Home");
+      console.log('check register2')
+    
+
+    
   };
 
   const handleLogin = async () => {

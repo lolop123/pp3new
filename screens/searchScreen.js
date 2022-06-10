@@ -38,14 +38,16 @@ const auth = getAuth();
 
 
 const Searchscreen = () => {
+  var theBigDay = new Date(2000, 1, 2);
 
-  const [textInputValue, setTextInputValue] = useState([
+  const [textInputValue, setTextInputValue] = useState(
     {
+      mail: "admin",
       key: 1,
       name: "Joe",
       type: "admin"
     }
-  ]);
+  );
   const [datas, setDatas] = useState([
     {
       key: 1,
@@ -54,12 +56,74 @@ const Searchscreen = () => {
     }
   ]);
   useEffect(() => {
-    console.log(textInputValue)
+    console.log(textInputValue.mail)
 
+    const  checlDoubles = async () => {
+
+    const placesPool = collection(db, "people");
+      const placesSnapshot = await getDocs(placesPool);
+      const placesList = placesSnapshot.docs.map((doc) => doc.data());
+      
+      var fruits = placesList.filter(human => human.takerMail  == auth.currentUser?.email )
+      console.log('takers')
+      console.log(fruits)
+
+      for (let index = 0; index < fruits.length; index++) {
+      
+        const docRef = await doc(db, "people", fruits[index].mail);
+        const docSnap = await getDoc(docRef);
+
+        const docData = {
+          currentPlace: 0,
+          mail: docSnap.data().mail,
+          permPlace: docSnap.data().permPlace,
+          date: docSnap.data().date,
+          dateMax : docSnap.data().dateMax,
+          statusOfPermPla: "free",
+          searchStatus: docSnap.data().searchStatus,
+          takingEnd: theBigDay,
+          takingStart: theBigDay,
+          takerMail: 'admin'
+        };
+        await setDoc(doc(db, "people", fruits[index].mail), docData);
+        console.log('удалили старое')
+      }
+      
+
+    }
+    
+
+    const  setPlace = async () => {
+     
+      const docRef = await doc(db, "people", textInputValue.mail);
+   const docSnap = await getDoc(docRef);
+
+   const docData = {
+    currentPlace: 0,
+    mail: docSnap.data().mail,
+    permPlace: docSnap.data().permPlace,
+    date: docSnap.data().date,
+    dateMax : docSnap.data().dateMax,
+    statusOfPermPla: "free",
+    searchStatus: docSnap.data().searchStatus,
+    takingEnd: docSnap.data().date,
+    takingStart:textInputValue.dateMax,
+    takerMail: auth.currentUser?.email
+  };
+  
+  await setDoc(doc(db, "people", textInputValue.mail), docData);
+  console.log('вставили новое')
+  }
+  if (textInputValue.mail != 'admin') {
+    checlDoubles();
+    setTimeout(setPlace, 500)
+    
+    
+  } else{console.log('mail is admin')}
 
       }, [textInputValue]);
 
-  var theBigDay = new Date(2000, 1, 2);
+  
   const navigation = useNavigation();
   const [switcherStatus, setswitcherStatus] = useState(1);
   const handleSignOut = async () => {
@@ -83,7 +147,7 @@ const Searchscreen = () => {
     async function searchFreePlace() {
       console.log("get start");
 
-      //const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+      
       const placesPool = collection(db, "people");
       const placesSnapshot = await getDocs(placesPool);
       const placesList = placesSnapshot.docs.map((doc) => doc.data());
@@ -105,16 +169,7 @@ const Searchscreen = () => {
     console.log(datas)
     }
 
-       let index = 0;
-      const data = [
-        { key: index++, section: true, label: 'Fruits' },
-        { key: index++, label: 'Red Apples' },
-        { key: index++, label: 'Cherries' },
-        { key: index++, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
-        // etc...
-        // Can also add additional custom keys which are passed to the onChange callback
-        { key: index++, label: 'Vegetable', customKey: 'Not a fruit' }
-    ];
+      
 
 return (
   
@@ -132,8 +187,7 @@ return (
     <TouchableOpacity onPress={handleSignOut} style={styles.button}>
       <Text style={styles.buttonText}>Sign out</Text>
     </TouchableOpacity>
-
-     <ModalSelector
+    <ModalSelector
                     data={datas}
                     initValue="Select something yummy!"
                     supportedOrientations={['landscape']}
