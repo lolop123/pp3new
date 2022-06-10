@@ -39,7 +39,7 @@ const auth = getAuth();
 
 const Searchscreen = () => {
   var theBigDay = new Date(2000, 1, 2);
-
+  const [choosedPlase, setchoosedPlase] = useState(" ")
   const [textInputValue, setTextInputValue] = useState(
     {
       mail: "admin",
@@ -58,6 +58,18 @@ const Searchscreen = () => {
   useEffect(() => {
     console.log(textInputValue.mail)
 
+    const  choosePlaceRequest = async () => {
+      const placesPool = collection(db, "people");
+      const placesSnapshot = await getDocs(placesPool);
+      const placesList = placesSnapshot.docs.map((doc) => doc.data());
+      
+      var fruits = placesList.filter(human => human.takerMail  == auth.currentUser?.email )
+
+      const docRef = await doc(db, "people", fruits[0].mail);
+        const docSnap = await getDoc(docRef);
+        setchoosedPlase(docSnap.data().permPlace)
+    }
+    choosePlaceRequest()
     const  checlDoubles = async () => {
 
     const placesPool = collection(db, "people");
@@ -93,33 +105,35 @@ const Searchscreen = () => {
     }
     
 
-    const  setPlace = async () => {
-     
-      const docRef = await doc(db, "people", textInputValue.mail);
-   const docSnap = await getDoc(docRef);
+        const  setPlace = async () => {
+        
+          const docRef = await doc(db, "people", textInputValue.mail);
+      const docSnap = await getDoc(docRef);
 
-   const docData = {
-    currentPlace: 0,
-    mail: docSnap.data().mail,
-    permPlace: docSnap.data().permPlace,
-    date: docSnap.data().date,
-    dateMax : docSnap.data().dateMax,
-    statusOfPermPla: "free",
-    searchStatus: docSnap.data().searchStatus,
-    takingEnd: docSnap.data().date,
-    takingStart:textInputValue.dateMax,
-    takerMail: auth.currentUser?.email
-  };
-  
-  await setDoc(doc(db, "people", textInputValue.mail), docData);
-  console.log('вставили новое')
-  }
-  if (textInputValue.mail != 'admin') {
-    checlDoubles();
-    setTimeout(setPlace, 500)
-    
-    
-  } else{console.log('mail is admin')}
+      const docData = {
+        currentPlace: 0,
+        mail: docSnap.data().mail,
+        permPlace: docSnap.data().permPlace,
+        date: docSnap.data().date,
+        dateMax : docSnap.data().dateMax,
+        statusOfPermPla: "free",
+        searchStatus: docSnap.data().searchStatus,
+        takingEnd: docSnap.data().date,
+        takingStart:textInputValue.dateMax,
+        takerMail: auth.currentUser?.email
+      };
+      
+      await setDoc(doc(db, "people", textInputValue.mail), docData);
+      setchoosedPlase(docSnap.data().permPlace)
+      console.log(docSnap.data().permPlace)
+      console.log('вставили новое')
+      }
+      if (textInputValue.mail != 'admin') {
+        checlDoubles();
+        setTimeout(setPlace, 500)
+        
+        
+      } else{console.log('mail is admin')}
 
       }, [textInputValue]);
 
@@ -174,7 +188,8 @@ const Searchscreen = () => {
 return (
   
   <View style={styles.container}>
-    <Text>hello</Text>
+    <Text>{auth.currentUser?.email}</Text>
+    <Text>Choosed {choosedPlase}</Text>
     <SwitchSelector
         options={optionsOFSwitcher}
         initial={0}

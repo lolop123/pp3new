@@ -19,7 +19,7 @@ import {
 } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -33,71 +33,80 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
 
-
-
 const HomeScreen = () => {
   var theBigDay = new Date(2000, 1, 2);
   const [reload, setReload] = useState(0);
-  const [isPermPlaceVisible, setPermPlaceVisible] = useState(false);
-  
-  useEffect(() => {
 
-    const  getcurrPlace = async () => {
-     
-         const docRef = await doc(db, "people", auth.currentUser?.email);
+ 
+
+  useEffect(() => {
+    const getcurrPlace = async () => {
+      const docRef = doc(db, "people", auth.currentUser?.email);
       const docSnap = await getDoc(docRef);
-      console.log('-------')
+      console.log("-------");
+      
       const timeElapsed = Date.now();
       const today = new Date(timeElapsed);
-      let numberMinusDays = docSnap.data().date.toDate().setHours(0,0,0,0) - today.setHours(0,0,0,0);
-      console.log(( numberMinusDays) / (1000 * 60 * 60 * 24))
-    if(( numberMinusDays) / (1000 * 60 * 60 * 24) > 0 ){
-      console.log('Using')
-      setplaceStatus('Using');
-    }
-    else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < 1 && ( numberMinusDays) / (1000 * 60 * 60 * 24) > -50 ){
-      setplaceStatus('Free') ; console.log('free')
-    }
-    else if(( numberMinusDays) / (1000 * 60 * 60 * 24) < -50){
-      setplaceStatus('Not sharing')
-    }
-     
-      
-     if (docSnap.data().permPlace == 'Please enter your permanent place') {
-        setpermPlace('Please enter your permanent place')
-      } else {
-        setpermPlace(docSnap.data().permPlace)
-      }
-      console.log('entered effect'+ docSnap.data().date.toDate())
-      setShareDateStart( docSnap.data().date.toDate().toLocaleDateString('en-us'));
-      if (docSnap.data().dateMax.toDate().setHours(0,0,0,0) == theBigDay.setHours(0,0,0,0)) {
-        setshareDateEnd(' ')
-      } else {
-        setshareDateEnd(docSnap.data().dateMax.toDate().toLocaleDateString('en-us'));
+      let numberMinusDays =
+        docSnap.data().date.toDate().setHours(0, 0, 0, 0) -
+        today.setHours(0, 0, 0, 0);
+      console.log(numberMinusDays / (1000 * 60 * 60 * 24));
+      if (numberMinusDays / (1000 * 60 * 60 * 24) > 0) {
+        console.log("Using");
+        setplaceStatus("Using");
+      } else if (
+        numberMinusDays / (1000 * 60 * 60 * 24) < 1 &&
+        numberMinusDays / (1000 * 60 * 60 * 24) > -50
+      ) {
+        setplaceStatus("Free");
+        console.log("free");
+      } else if (numberMinusDays / (1000 * 60 * 60 * 24) < -50) {
+        setplaceStatus("Not sharing");
       }
       
-    
-  
-    console.log("get" + permanentPlace);
-    if (permanentPlace == 'Please enter your permanent place') {
-      setPermPlaceVisible(true)
-    } else {
-      setPermPlaceVisible(false)
-    }
-    if (docSnap.data().date.toDate().setHours(0,0,0,0) == theBigDay.setHours(0,0,0,0)) {
-      setSharePlaceVisible(false)
-    } else {
-      setSharePlaceVisible(true)
-    }
-    
-  }
-  getcurrPlace()
+      console.log("in bd " +  docSnap.data().permPlace);
+      
+       setpermPlace(docSnap.data().permPlace)
+      
+
+      console.log("in state " + permanentPlace);
+
+      console.log("entered effect" + docSnap.data().date.toDate());
+      setShareDateStart(
+        docSnap.data().date.toDate().toLocaleDateString("en-us")
+      );
+      if (
+        docSnap.data().dateMax.toDate().setHours(0, 0, 0, 0) ==
+        theBigDay.setHours(0, 0, 0, 0)
+      ) {
+        console.log('в докснепе'+docSnap.data().dateMax.toDate().setHours(0, 0, 0, 0))
+        console.log('в бигдейте'+theBigDay.setHours(0, 0, 0, 0))
+        setshareDateEnd(" ");
+      } else {
+        
+        setshareDateEnd(
+          docSnap.data().dateMax.toDate().toLocaleDateString("en-us")
+        );
+      }
+
+      console.log("get" + permanentPlace);
+      if (docSnap.data().permPlace == "Please enter your permanent place") {
+        setPermPlaceVisible(true);
+      } else {
+        setPermPlaceVisible(false);
+      }
+      if (
+        docSnap.data().date.toDate().setHours(0, 0, 0, 0) ==
+        theBigDay.setHours(0, 0, 0, 0)
+      ) {
+        setSharePlaceVisible(false);
+      } else {
+        setSharePlaceVisible(true);
+      }
+    };
+    getcurrPlace();
   }, [reload]);
 
-  
-
-
-    
   async function settPlace() {
     const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
     const docData = {
@@ -105,32 +114,31 @@ const HomeScreen = () => {
       mail: auth.currentUser?.email,
       permPlace: parkingPlace,
       date: docSnap.data().date,
-      dateMax : docSnap.data().dateMax,
+      dateMax: docSnap.data().dateMax,
       statusOfPermPla: "free",
+      searchStatus: docSnap.data().searchStatus,
       takingEnd: docSnap.data().takingEnd,
-      takingStart:docSnap.data().takingStart,
-      takerMail: docSnap.data().takerMail
+      takingStart: docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail,
     };
-    
+
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     setpermPlace(parkingPlace);
-   
-    
-    
-  }
+    setReload((oldKey) => oldKey + 2);
 
+  }
 
   const [parkingPlace, setPlace] = useState("");
   const [currPlace, setcurrPlace] = useState("");
-  const [permanentPlace, setpermPlace] = useState("");
-  const [placeStatus, setplaceStatus] = useState("Using");
+  const [permanentPlace, setpermPlace] = useState("111");
+  const [placeStatus, setplaceStatus] = useState("222");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isDatePickerVisibleMax, setDatePickerVisibilityMax] = useState(false);
-  
+  const [isPermPlaceVisible, setPermPlaceVisible] = useState(false);
   const [isSharePlaceVisible, setSharePlaceVisible] = useState(false);
   const [shareDateStart, setShareDateStart] = useState("");
   const [shareDateEnd, setshareDateEnd] = useState("");
-  
+
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
@@ -149,63 +157,51 @@ const HomeScreen = () => {
   const handleConfirm = async (date) => {
     console.log("A min date has been picked: ", date);
     const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
-    
+
     const docData = {
-      currentPlace: currPlace,
+      currentPlace: 0,
       mail: auth.currentUser?.email,
-      permPlace: permanentPlace,
-      date: date ,
-      dateMax : docSnap.data().dateMax,
-      statusOfPermPla: placeStatus,
+      permPlace: docSnap.data().permPlace,
+      date: date,
+      dateMax: docSnap.data().dateMax,
+      statusOfPermPla: 'free',
       searchStatus: docSnap.data().searchStatus,
       takingEnd: docSnap.data().takingEnd,
-      takingStart:docSnap.data().takingStart,
-      takerMail: docSnap.data().takerMail
+      takingStart: docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail,
     };
-    try {
-      setDoc(doc(db, "people", auth.currentUser?.email), docData);
-   }
-   catch (e) {
-     
-      logMyErrors(e); 
-   }
-    hideDatePicker();
     
-    console.log('huiiiiii ' + shareDateStart);
-    setReload(oldKey => oldKey +2);
+     setDoc(doc(db, "people", auth.currentUser?.email), docData);
+    
+    hideDatePicker();
 
-
-
+    console.log("huiiiiii " + shareDateStart);
+    setReload((oldKey) => oldKey + 2);
   };
-  
-  const handleConfirmMax = async  (date) => {
+
+  const handleConfirmMax = async (date) => {
     console.log("A max date has been picked: ", date);
-   
+
     const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
 
     const docData = {
-      currentPlace: currPlace,
+      currentPlace: 0,
       mail: auth.currentUser?.email,
-      permPlace: permanentPlace,
+      permPlace: docSnap.data().permPlace,
       date: docSnap.data().date,
       dateMax: date,
       statusOfPermPla: "free",
       searchStatus: docSnap.data().searchStatus,
       takingEnd: docSnap.data().takingEnd,
-      takingStart:docSnap.data().takingStart,
-      takerMail: docSnap.data().takerMail
+      takingStart: docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail,
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
-    setReload(oldKey => oldKey +2);
-    
-    
+    setReload((oldKey) => oldKey + 1);
   };
 
   const navigation = useNavigation();
-
-  
-  
 
   const handleSignOut = async () => {
     auth
@@ -214,30 +210,25 @@ const HomeScreen = () => {
         navigation.replace("Login");
       })
       .catch((error) => alert(error.message));
-      await AsyncStorage.setItem(
-        'switcherStatusStorage',
-        'a'
-      );
+    await AsyncStorage.setItem("switcherStatusStorage", "a");
   };
-  async function getPlace() {
-    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+  // async function getPlace() {
+  //   const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
 
-    const docData = {
-      currentPlace: docSnap.data().currentPlace,
-      mail: auth.currentUser?.email,
-      permPlace: docSnap.data().permPlace,
-      date: docSnap.data().date,
-      dateMax: docSnap.data().dateMax ,
-      statusOfPermPla: docSnap.data().statusOfPermPla,
-      searchStatus: docSnap.data().searchStatus,
-      takingEnd: theBigDay,
-      takingStart: theBigDay,
-      takerMail: docSnap.data().takerMail
-    };
-    setDoc(doc(db, "people", auth.currentUser?.email), docData);
-    
-   
-  }
+  //   const docData = {
+  //     currentPlace: docSnap.data().currentPlace,
+  //     mail: auth.currentUser?.email,
+  //     permPlace: docSnap.data().permPlace,
+  //     date: docSnap.data().date,
+  //     dateMax: docSnap.data().dateMax,
+  //     statusOfPermPla: docSnap.data().statusOfPermPla,
+  //     searchStatus: docSnap.data().searchStatus,
+  //     takingEnd: theBigDay,
+  //     takingStart: theBigDay,
+  //     takerMail: docSnap.data().takerMail,
+  //   };
+  //   setDoc(doc(db, "people", auth.currentUser?.email), docData);
+  // }
   async function getpermPlace() {
     const docRef = doc(db, "people", "lol@gmail.com");
     const docSnap = await getDoc(docRef);
@@ -248,7 +239,7 @@ const HomeScreen = () => {
 
   async function dontShareF() {
     const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
-    
+
     const docData = {
       currentPlace: docSnap.data().currentPlace,
       mail: auth.currentUser?.email,
@@ -258,43 +249,49 @@ const HomeScreen = () => {
       statusOfPermPla: docSnap.data().statusOfPermPla,
       searchStatus: docSnap.data().searchStatus,
       takingEnd: docSnap.data().takingEnd,
-      takingStart:docSnap.data().takingStart,
-      takerMail: docSnap.data().takerMail
+      takingStart: docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail,
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
-   }
-   catch (e) {
-      
-      logMyErrors(e); 
-   }
-   setReload(oldKey => oldKey +1);
+    } catch (e) {
+      logMyErrors(e);
+    }
+    setReload((oldKey) => oldKey + 1);
   }
 
-
   return (
-    
     <View style={styles.container}>
       <Text>Email: {auth.currentUser?.email}</Text>
-      <Text>Your current place: {currPlace}</Text>
-      {/* <Text>Your current place: {currPlace}</Text> */}
-      <Text> {permanentPlace}</Text>
+      
       <TextInput
+        
         placeholder={permanentPlace}
         value={parkingPlace}
         onChangeText={(text) => setPlace(text)}
-        
+        onSubmitEditing={settPlace}
       />
-      <Text>Your place status: {placeStatus}</Text>
+      {!isPermPlaceVisible ? (<Text>Your place status: {placeStatus}</Text>   ) : null}
       {isSharePlaceVisible ? (
-      <Text>You will share place from: {shareDateStart} to {shareDateEnd} </Text> 
+        <Text>
+          You will share place from: {shareDateStart} to {shareDateEnd}{" "}
+        </Text>
       ) : null}
+      {isPermPlaceVisible ? (
+        <TouchableOpacity onPress={settPlace} style={styles.button}>
+          <Text style={styles.buttonText}>Set my place</Text>
+        </TouchableOpacity>
+      ) : null}
+      {!isPermPlaceVisible ? (
       <TouchableOpacity onPress={showDatePicker} style={styles.button}>
         <Text style={styles.buttonText}>set date min</Text>
       </TouchableOpacity>
+       ) : null}
+       {!isPermPlaceVisible ? (
       <TouchableOpacity onPress={showDatePickerMax} style={styles.button}>
         <Text style={styles.buttonText}>set date max</Text>
       </TouchableOpacity>
+       ) : null}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
@@ -307,16 +304,14 @@ const HomeScreen = () => {
         onConfirm={handleConfirmMax}
         onCancel={hideDatePickerMax}
       />
-      <TouchableOpacity onPress={getPlace} style={styles.button}>
+      {/* <TouchableOpacity onPress={getPlace} style={styles.button}>
         <Text style={styles.buttonText}>My place</Text>
-      </TouchableOpacity>
-      {isPermPlaceVisible ? (
-      <TouchableOpacity  onPress={settPlace} style={styles.button}>
-        <Text style={styles.buttonText}>sett</Text>
-      </TouchableOpacity>  ) : null}
+      </TouchableOpacity> */}
+      {isSharePlaceVisible ? (
       <TouchableOpacity onPress={dontShareF} style={styles.button}>
         <Text style={styles.buttonText}>Dont share</Text>
       </TouchableOpacity>
+        ) : null}
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
@@ -335,20 +330,19 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#0782F9",
     width: "60%",
-    padding: 15,
-    borderRadius: 10,
+    padding: 14,
+    borderRadius: 19,
     alignItems: "center",
     marginTop: 40,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontWeight: "700",
     fontSize: 16,
   },
-  input:{
+  input: {
     color: "red",
     fontWeight: "700",
     fontSize: 16,
   },
-  
 });
