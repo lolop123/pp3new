@@ -157,9 +157,10 @@ const LoginScreen = () => {
   ];
   
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView style={styles.container}>
       <View style={styles.inputContainer}>
         <SwitchSelector
+        buttonColor={'#000000'}
           options={optionsOFSwitcher}
           initial={0}
           onPress={(value) => _storeData(value)}
@@ -184,14 +185,12 @@ const LoginScreen = () => {
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={retrieveData} style={styles.button}>
-          <Text style={styles.buttonText}>Try</Text>
-        </TouchableOpacity>
+        
         <TouchableOpacity
           onPress={handleSignUp}
-          style={[styles.button, styles.buttonOutline]}
+          style={styles.button}
         >
-          <Text style={styles.buttonOutlineText}>Register</Text>
+          <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -223,11 +222,12 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
-    backgroundColor: "#0782F9",
+    backgroundColor: "#000000",
     width: "100%",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginTop: 20,
   },
   buttonOutline: {
     backgroundColor: "white",

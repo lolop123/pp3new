@@ -191,6 +191,8 @@ return (
     <Text>{auth.currentUser?.email}</Text>
     <Text>Choosed {choosedPlase}</Text>
     <SwitchSelector
+    buttonColor={'#000000'}
+    
         options={optionsOFSwitcher}
         initial={0}
         onPress={(value) => setswitcherStatus(value)}
@@ -203,6 +205,7 @@ return (
       <Text style={styles.buttonText}>Sign out</Text>
     </TouchableOpacity>
     <ModalSelector
+    
                     data={datas}
                     initValue="Select something yummy!"
                     supportedOrientations={['landscape']}
@@ -228,12 +231,12 @@ container: {
   alignItems: "center",
 },
 button: {
-  backgroundColor: "#0782F9",
+  backgroundColor: "#000000",
   width: "60%",
   padding: 15,
   borderRadius: 10,
   alignItems: "center",
-  marginTop: 40,
+  marginTop: 20,
 },
 buttonText: {
   color: "white",
