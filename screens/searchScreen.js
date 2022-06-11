@@ -22,6 +22,8 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SwitchSelector from "react-native-switch-selector";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ModalSelector from 'react-native-modal-selector'
+import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIIVbdOEjWAxRhfYseea_kGf6SALoOBhE",
@@ -55,7 +57,19 @@ const Searchscreen = () => {
       type: "admin"
     }
   ]);
+  const [sstate, setState] = useState({
+      
+    tableData: [
+      ['1'],
+      ['17'],
+      ['52'],
+      ['74'],
+    ]
+  }) 
+  console.log('table=' + sstate.tableData[0][0])
   useEffect(() => {
+
+
     console.log(textInputValue.mail)
 
     const  choosePlaceRequest = async () => {
@@ -68,6 +82,35 @@ const Searchscreen = () => {
       const docRef = await doc(db, "people", fruits[0].mail);
         const docSnap = await getDoc(docRef);
         setchoosedPlase(docSnap.data().permPlace)
+
+        sstate.tableData = [
+          ['1', '2', '3', '4', '5','6', '7','8', '9', '10','11', '12', '13', '14', '15', '16'],
+          ['17', '18', '19', '20', '21','22', '23', '24', '25','26','27', '28', '29', '30','31', '32', '33', '34', '35', '36'],
+          ['52', '51', '50', '49','48', '47', '46', '45', '44', '43','42', '41', '40', '39','38','37'],
+          ['74', '73', '72','71', '70', '69', '68', '67','66', '65', '64', '63', '62', '61','60', '59', '58', '57','56', '55', '54', '53'],
+        ]
+
+        for (let index = 0; index < sstate.tableData.length; index++) {
+          console.log('if'+sstate.tableData[index])
+          
+          for (let indexx = 0; indexx < sstate.tableData[index].length; indexx++) {
+           
+            if(docSnap.data().permPlace == sstate.tableData[index][indexx]){
+  
+              console.log('if'+sstate.tableData[index][indexx])
+              sstate.tableData[index][indexx] = '*';
+              console.log('if'+sstate.tableData[index][indexx])
+              setState(sstate)
+              console.log(sstate)
+            }
+          }
+        }
+
+
+
+
+
+
     }
     choosePlaceRequest()
     const  checlDoubles = async () => {
@@ -124,9 +167,16 @@ const Searchscreen = () => {
       };
       
       await setDoc(doc(db, "people", textInputValue.mail), docData);
+      console.log('set do=' + sstate.tableData)
+      
+      
+      console.log('set after=' + sstate.tableData)
+
+      
       setchoosedPlase(docSnap.data().permPlace)
       console.log(docSnap.data().permPlace)
       console.log('вставили новое')
+      
       }
       if (textInputValue.mail != 'admin') {
         checlDoubles();
@@ -182,14 +232,19 @@ const Searchscreen = () => {
     console.log('---------')
     console.log(datas)
     }
-
       
-
 return (
   
   <View style={styles.container}>
     <Text>{auth.currentUser?.email}</Text>
     <Text>Choosed {choosedPlase}</Text>
+        <Table style={styless.container} borderStyle={{borderWidth: 1}}>
+         
+          <TableWrapper style={styless.wrapper}>
+            <Col data={sstate.tableTitle} style={styless.title} heightArr={[28,28]} textStyle={styless.text}/>
+            <Rows data={sstate.tableData} flexArr={[1, 1, 1]} style={styless.row} textStyle={styless.text}/>
+          </TableWrapper>
+        </Table>
     <SwitchSelector
     buttonColor={'#000000'}
     
@@ -217,7 +272,8 @@ return (
                     onChange={(option)=>{ setTextInputValue(option)}}>
                     
                 </ModalSelector>
-    
+                
+        
   </View>
 );
 };
@@ -226,6 +282,7 @@ export default Searchscreen;
 
 const styles = StyleSheet.create({
 container: {
+  
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
@@ -249,4 +306,14 @@ input:{
   fontSize: 16,
 },
 
+
+});
+
+const styless = StyleSheet.create({
+  container: { width: '100%', height: 115,marginBottom:10},
+
+  wrapper: {flex: 1, flexDirection: 'row' },
+  title: { flex: 1, backgroundColor: 'black' },
+  row: {  height: 28  },
+  text: { textAlign: 'center' }
 });
